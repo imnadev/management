@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:management/management.dart';
@@ -15,6 +16,8 @@ abstract class Managed<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
 
   void listener(BuildContext context, MANAGER manager, EFFECT effect) {}
 
+  void onNavigateBack(MANAGER manager) {}
+
   @override
   State<Managed> createState() => ManagedState<MANAGER, STATE, EFFECT>();
 }
@@ -25,6 +28,8 @@ class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
 
   late StreamSubscription _subscription;
 
+  late LocalKey routeKey;
+
   @override
   void initState() {
     super.initState();
@@ -33,6 +38,18 @@ class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
     _subscription = _manager.effectSubject.listen((effect) {
       widget.listener(context, _manager, effect);
     });
+
+    final router = context.router;
+    routeKey = router.current.key;
+    router.addListener(routeListener);
+  }
+
+  void routeListener() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final router = GetIt.instance<StackRouter>();
+      if (routeKey != router.current.key) return;
+      widget.onNavigateBack(_manager);
+    });
   }
 
   @override
@@ -40,6 +57,7 @@ class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
     super.dispose();
     _manager.close();
     _subscription.cancel();
+    GetIt.instance<StackRouter>().removeListener(routeListener);
   }
 
   @override

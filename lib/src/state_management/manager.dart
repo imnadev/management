@@ -26,4 +26,6 @@ abstract class Manager<STATE, EFFECT> {
     effectSubject.close();
     isClosed = true;
   }
+
+  void rebuild() => emit(state);
 }
