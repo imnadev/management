@@ -48,12 +48,11 @@ class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
       widget.listener(context, _manager, effect);
     });
 
-    try {
+    final scope = StackRouterScope.of(context);
+    if (scope != null) {
       final router = context.router;
       routeKey = router.current.key;
       router.addListener(routeListener);
-    } catch (e) {
-      // ignore
     }
   }
 
@@ -73,7 +72,6 @@ class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
     GetIt.instance<StackRouter>().removeListener(routeListener);
     widget.dispose();
   }
-
 
   @override
   void didUpdateWidget(Managed oldWidget) {
