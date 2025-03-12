@@ -8,6 +8,7 @@ extension FutureHandlerExtension<T> on Future<T> {
   Future<void> handle({
     VoidCallback? onStart,
     void Function(Object e)? onError,
+    void Function(Object e, StackTrace st)? onErrorWithStack,
     void Function(T data)? onData,
     VoidCallback? onDone,
   }) async {
@@ -24,6 +25,7 @@ extension FutureHandlerExtension<T> on Future<T> {
         );
       }
       onError?.call(e);
+      onErrorWithStack?.call(e, stackTrace);
     } finally {
       onDone?.call();
     }
