@@ -1,9 +1,6 @@
 This package is a small and easy to use state management solution for Flutter.
 
 ## Pattern
-This package is a small and easy to use state management solution for Flutter.
-
-## Pattern
 * There are four classes: `Managed`, `Manager`, `State` and `Effect`.
 * `Managed` is extended by the widget. It overrides `listener` and `builder` functions.
 * `listener` is responsible for handling `Effect`s, like showing a snackbar, navigating to the next screen, etc.
@@ -13,8 +10,7 @@ This package is a small and easy to use state management solution for Flutter.
 ## Prerequisites
 This packaged is currently designed to work on a project with certain conditions:
 * The project must use auto_route for navigation.
-* The project must use get_it for dependency injection and the `AppRouter` should be registered as `StackRouter` during initialization of get_it.
-* The project must use injectable to generate code for get_it.
+* The project must use get_it with injectable for dependency injection.
 * The project must use freezed.
 
 ## Getting started
@@ -24,12 +20,14 @@ management:
    git: https://github.com/imnadev/management.git
 ```
 
-To generate a managed page, run this command in your terminal and give it a name of `home`:
-`dart run management:generate lib/presentation/`
+To generate a managed page in your presentation directory, run this command in your terminal and give it a name of `home` when prompted:
+```
+dart run management:generate lib/presentation/
+```
 
 
 ## Package Usage
-`home_management.dart` contains `HomeState` and `HomeEffect`. `HomeState` holds the current state of the widget. `HomeEffect` is used to fire side effects to the widget like displaying a dialog or navigating to a different screen.
+`home_management.dart` contains `HomeState` and `HomeEffect`. `HomeState` holds the current state of the widget. `HomeEffect` is used to fire side effects to the widget.
 ```
 @freezed
 abstract class HomeState with _$HomeState {
