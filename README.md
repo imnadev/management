@@ -18,13 +18,14 @@ This packaged is currently designed to work on a project with certain conditions
 * The project must use freezed.
 
 ## Getting started
-1. To install the package, include the git repository in your pubspec.yaml:
-     ```  
+To install the package, include the git repository in your pubspec.yaml:
+```  
 management:
    git: https://github.com/imnadev/management.git
- ```
-2. To generate a managed page, run this command in your terminal and give it a name of `home`:
-   `dart run management:generate lib/presentation/`
+```
+
+To generate a managed page, run this command in your terminal and give it a name of `home`:
+`dart run management:generate lib/presentation/`
 
 
 ## Package Usage
