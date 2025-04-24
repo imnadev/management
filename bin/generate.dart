@@ -1,14 +1,16 @@
 import 'dart:io';
 
-void main() async {
+void main(List<String> args) async {
   stdout.write("Name: ");
   final name = stdin.readLineSync()!;
 
+  final path = args[0];
+
   final contents = FileContents(name);
   final operations = [
-    ('./$name/management/${name}_management.dart', contents.management),
-    ('./$name/management/${name}_manager.dart', contents.manager),
-    ('./$name/${name}_page.dart', contents.page),
+    ('$path/$name/management/${name}_management.dart', contents.management),
+    ('$path/$name/management/${name}_manager.dart', contents.manager),
+    ('$path/$name/${name}_page.dart', contents.page),
   ];
   for (final operation in operations) {
     final file = File(operation.$1);
@@ -38,17 +40,17 @@ class ${className}Manager extends Manager<${className}State, ${className}Effect>
 """;
 
   late final management =
-  """import 'package:freezed_annotation/freezed_annotation.dart';
+      """import 'package:freezed_annotation/freezed_annotation.dart';
 
 part '${name}_management.freezed.dart';
 
 @freezed
-class ${className}State with _\$${className}State {
+abstract class ${className}State with _\$${className}State {
   const factory ${className}State() = _${className}State;
 }
 
 @freezed
-class ${className}Effect with _\$${className}Effect {
+sealed class ${className}Effect with _\$${className}Effect {
   const factory ${className}Effect() = _${className}Effect;
 }
 """;
@@ -83,4 +85,3 @@ extension StringExtension on String {
     return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
-

@@ -38,6 +38,7 @@ class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
   late StreamSubscription _subscription;
 
   late LocalKey routeKey;
+  late StackRouter router;
 
   @override
   void initState() {
@@ -50,7 +51,7 @@ class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
 
     final scope = StackRouterScope.of(context);
     if (scope != null) {
-      final router = context.router;
+      router = context.router;
       routeKey = router.current.key;
       router.addListener(routeListener);
     }
@@ -58,7 +59,6 @@ class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
 
   void routeListener() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final router = GetIt.instance<StackRouter>();
       if (routeKey != router.current.key) return;
       widget.onNavigateBack(_manager);
     });
@@ -96,11 +96,9 @@ class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
         child: StreamBuilder<STATE>(
           initialData: _manager.state,
           stream: _manager.stateSubject,
-          builder: (context, snapshot) => widget.builder(
-            context,
-            _manager,
-            snapshot.data,
-          ),
+          builder:
+              (context, snapshot) =>
+                  widget.builder(context, _manager, snapshot.data),
         ),
       ),
     );

@@ -1,35 +1,37 @@
 This package is a small and easy to use state management solution for Flutter.
 
-## Features
+## Pattern
+This package is a small and easy to use state management solution for Flutter.
 
-1. A helper plugin to generate the state classes, a state manager class and a state managed widget.
-2. Separate streams for the widget's state and side effects.
-3. Helper extensions to handle state when working with Future and Stream.
+## Pattern
+* There are four classes: `Managed`, `Manager`, `State` and `Effect`.
+* `Managed` is extended by the widget. It overrides `listener` and `builder` functions.
+* `listener` is responsible for handling `Effect`s, like showing a snackbar, navigating to the next screen, etc.
+* `buidler` is responsible for building the widget based on `State`, which may contain an index of a counter, a loading state of a button, etc.
+*  `Manager` is responsible for all the UI logic while emitting states and publishing effects.
 
 ## Prerequisites
-This package is designed to work with a project which uses auto_route, get_it, injectable, and freezed libraries.
+This packaged is currently designed to work on a project with certain conditions:
+* The project must use auto_route for navigation.
+* The project must use get_it for dependency injection and the `AppRouter` should be registered as `StackRouter` during initialization of get_it.
+* The project must use injectable to generate code for get_it.
+* The project must use freezed.
 
 ## Getting started
-1. To install the plugin:
-   a. Android Studio -> Settings -> Plugins -> ⚙ -> Install Plugin from Disk
-   b. Choose the plugin.jar file downloaded from this github repository.
+1. To install the package, include the git repository in your pubspec.yaml:
+     ```  
+management:
+   git: https://github.com/imnadev/management.git
+ ```
+2. To generate a managed page, run this command in your terminal and give it a name of `home`:
+   `dart run management:generate lib/presentation/`
 
-2. To install the package, include the git repository in your pubspec.yaml:
-```
-  management:
-      git: https://github.com/imnadev/management.git
-```
-
-## Plugin Usage
- 1. Right click on where you would like to create your page.
- 2. New -> Managed Page: Type the name of your page.
- 3. It will create the page with all the necessary classes
 
 ## Package Usage
 `home_management.dart` contains `HomeState` and `HomeEffect`. `HomeState` holds the current state of the widget. `HomeEffect` is used to fire side effects to the widget like displaying a dialog or navigating to a different screen.
 ```
 @freezed
-class HomeState with _$HomeState {
+abstract class HomeState with _$HomeState {
   const factory HomeState({
     @Default(0) int counter,
     @Default(false) bool loading,
@@ -37,8 +39,8 @@ class HomeState with _$HomeState {
 }
 
 @freezed
-class HomeEffect with _$HomeEffect {
-  const factory HomeEffect.reminder({required int dozen}) = _Reminder;
+sealed class HomeEffect with _$HomeEffect {
+  const factory HomeEffect.reminder({required int dozen}) = Reminder;
 }
 ```
 
@@ -79,14 +81,14 @@ class HomePage extends Managed<HomeManager, HomeState, HomeEffect> {
 
   @override
   void listener(context, manager, effect) {
-    effect.when(
-      reminder: (dozed) {
-        final snackBar = SnackBar(
-          content: Text('You have pushed the button $dozed dozen times'),
-        );
+    switch (effect) {
+      case Reminder():
+        final message =
+            'You have pushed the button ${effect.dozen} dozen times';
+        final snackBar = SnackBar(content: Text(message));
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      },
-    );
+        break;
+    }
   }
 
   @override
@@ -107,9 +109,7 @@ class HomePage extends Managed<HomeManager, HomeState, HomeEffect> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          manager.increment();
-        },
+        onPressed: manager.increment,
         child: const Icon(Icons.add),
       ),
     );

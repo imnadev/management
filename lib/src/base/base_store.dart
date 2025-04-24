@@ -2,8 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:rx_shared_preferences/rx_shared_preferences.dart';
 
 class BaseStore<T> {
-  BaseStore(
-    this.key, {
+  BaseStore(this.key, {
     required this.serialize,
     required this.deserialize,
     Future<String> Function()? suffixer,
@@ -41,4 +40,6 @@ class BaseStore<T> {
     final suffixed = key + await suffixer();
     yield* _preferences.getStringStream(suffixed).map((e) => deserialize(e));
   }
+
+  Future<bool> get hasValue async => call().then((e) => e != null);
 }
