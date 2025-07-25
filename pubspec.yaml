@@ -1,6 +1,6 @@
 name: management
 description: "Simple and easy to use state management solution for Flutter."
-version: 0.0.1
+version: 0.0.2
 homepage: "https://github.com/imnadev/management"
 
 executables:
