@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:rxdart/rxdart.dart';
 
+import 'binder.dart';
 import 'observer.dart';
 
 abstract class Manager<STATE, EFFECT> {
@@ -7,6 +10,8 @@ abstract class Manager<STATE, EFFECT> {
   final effectSubject = PublishSubject<EFFECT>();
 
   STATE get state => stateSubject.value;
+
+  final binder = Binder();
 
   bool isClosed = false;
 
@@ -30,10 +35,16 @@ abstract class Manager<STATE, EFFECT> {
   }
 
   Future<void> close() async {
+    await binder.close();
     stateSubject.close();
     effectSubject.close();
     isClosed = true;
   }
 
   void rebuild() => emit(state);
+
+  void initialize() {}
+
+  Binding bind<T extends Object?>(Stream<T> Function() streamFactory,
+      void Function(T data) onData,) => binder.bind(streamFactory, onData);
 }

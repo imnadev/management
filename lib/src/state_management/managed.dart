@@ -55,6 +55,9 @@ class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
       routeKey = router.current.key;
       router.addListener(routeListener);
     }
+
+    _manager.initialize();
+    _manager.binder.run();
   }
 
   void routeListener() {

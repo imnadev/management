@@ -1,13 +1,13 @@
 name: management
-description: "A new Flutter project."
+description: "Simple and easy to use state management solution for Flutter."
 version: 0.0.1
-homepage:
+homepage: "https://github.com/imnadev/management"
 
 executables:
   generate: generate
 
 environment:
-  sdk: ^3.7.0
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   auto_route: any
