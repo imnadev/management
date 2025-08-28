@@ -32,13 +32,12 @@ abstract class Managed<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
 }
 
 class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
-    extends State<Managed> {
+    extends State<Managed> with AutoRouteAware {
   late MANAGER _manager;
 
   late StreamSubscription _subscription;
 
-  late LocalKey routeKey;
-  late StackRouter router;
+  AutoRouteObserver? _observer;
 
   @override
   void initState() {
@@ -49,22 +48,8 @@ class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
       widget.listener(context, _manager, effect);
     });
 
-    final scope = StackRouterScope.of(context);
-    if (scope != null) {
-      router = context.router;
-      routeKey = router.current.key;
-      router.addListener(routeListener);
-    }
-
     _manager.initialize();
     _manager.binder.run();
-  }
-
-  void routeListener() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (routeKey != router.current.key) return;
-      widget.onNavigateBack(_manager);
-    });
   }
 
   @override
@@ -72,8 +57,8 @@ class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
     super.dispose();
     _manager.close();
     _subscription.cancel();
-    GetIt.instance<StackRouter>().removeListener(routeListener);
     widget.dispose();
+    _observer?.unsubscribe(this);
   }
 
   @override
@@ -81,6 +66,19 @@ class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
     super.didUpdateWidget(oldWidget);
     widget.didUpdateWidget(_manager, oldWidget);
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _observer =
+        RouterScope.of(context).firstObserverOfType<AutoRouteObserver>();
+    if (_observer != null) {
+      _observer!.subscribe(this, context.routeData);
+    }
+  }
+
+  @override
+  void didPopNext() => widget.onNavigateBack(_manager);
 
   @override
   Widget build(BuildContext context) {
@@ -99,9 +97,8 @@ class ManagedState<MANAGER extends Manager<STATE, EFFECT>, STATE, EFFECT>
         child: StreamBuilder<STATE>(
           initialData: _manager.state,
           stream: _manager.stateSubject,
-          builder:
-              (context, snapshot) =>
-                  widget.builder(context, _manager, snapshot.data),
+          builder: (context, snapshot) =>
+              widget.builder(context, _manager, snapshot.data),
         ),
       ),
     );
